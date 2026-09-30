@@ -1,0 +1,44 @@
+name: 2-qadam — ma'lumot yig'ish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install -r requirements.txt
+
+      - name: Testlar
+        run: python -m pytest -q
+
+      - name: Ma'lumot yig'ish
+        run: python run_fetch.py
+
+      - name: Natijani saqlash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add data universe
+          git commit -m "data: $(date -u +%Y-%m-%d)" || echo "O'zgarish yo'q"
+          git push
+
+      - name: Qisqa hisobot
+        if: always()
+        run: |
+          echo "## Ma'lumot yig'ish natijasi" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          cat data/manifest.json >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
