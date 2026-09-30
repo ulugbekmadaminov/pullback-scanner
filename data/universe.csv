@@ -1,0 +1,216 @@
+ticker,name,weight,yf_ticker,sector,industry
+NVDA,NVIDIA Corp,14.07,NVDA,Technology,Semiconductors
+AAPL,Apple Inc,12.31,AAPL,Technology,Consumer Electronics
+MSFT,Microsoft Corp,9.67,MSFT,Technology,Software - Infrastructure
+GOOGL,Alphabet Inc,5.1,GOOGL,Communication Services,Internet Content & Information
+AVGO,Broadcom Inc,4.32,AVGO,Technology,Semiconductors
+MU,Micron Technology Inc,3.08,MU,Technology,Semiconductors
+TSLA,Tesla Inc,2.55,TSLA,Consumer Cyclical,Auto Manufacturers
+AMD,Advanced Micro Devices Inc,2.54,AMD,Technology,Semiconductors
+LLY,Eli Lilly & Co,2.43,LLY,Healthcare,Drug Manufacturers - General
+XOM,ExxonMobil Holdings Corp,1.7,XOM,Energy,Oil & Gas Integrated
+JNJ,Johnson & Johnson,1.64,JNJ,Healthcare,Drug Manufacturers - General
+ABBV,AbbVie Inc,1.2,ABBV,Healthcare,Drug Manufacturers - General
+CSCO,Cisco Systems Inc,1.09,CSCO,Technology,Communication Equipment
+LRCX,Lam Research Corp,1.04,LRCX,Technology,Semiconductor Equipment & Materials
+AMAT,Applied Materials Inc,1.04,AMAT,Technology,Semiconductor Equipment & Materials
+MRK,Merck & Co Inc,0.94,MRK,Healthcare,Drug Manufacturers - General
+PG,Procter & Gamble Co/The,0.89,PG,Consumer Defensive,Household & Personal Products
+PANW,Palo Alto Networks Inc,0.8,PANW,Technology,Software - Infrastructure
+HD,Home Depot Inc/The,0.74,HD,Consumer Cyclical,Home Improvement Retail
+CRWD,Crowdstrike Holdings Inc,0.68,CRWD,Technology,Software - Infrastructure
+GEV,GE Vernova Inc,0.66,GEV,Industrials,Specialty Industrial Machinery
+KLAC,KLA CORP,0.65,KLAC,Technology,Semiconductor Equipment & Materials
+TXN,Texas Instruments Inc,0.65,TXN,Technology,Semiconductors
+SNDK,Sandisk Corp,0.64,SNDK,Technology,Computer Hardware
+TMO,Thermo Fisher Scientific Inc,0.64,TMO,Healthcare,Diagnostics & Research
+ORCL,Oracle Corp,0.59,ORCL,Technology,Software - Infrastructure
+MRVL,MARVELL TECHNOLOGY INC,0.59,MRVL,Technology,Semiconductors
+LIN,Linde PLC,0.55,LIN,Basic Materials,Specialty Chemicals
+IBM,International Business Machines Corp,0.53,IBM,Technology,Information Technology Services
+ANET,Arista Networks Inc,0.53,ANET,Technology,Computer Hardware
+STX,Seagate Technology Holdings PLC,0.51,STX,Technology,Computer Hardware
+QCOM,QUALCOMM Inc,0.49,QCOM,Technology,Semiconductors
+ADI,Analog Devices Inc,0.49,ADI,Technology,Semiconductors
+GILD,Gilead Sciences Inc,0.48,GILD,Healthcare,Drug Manufacturers - General
+CRM,Salesforce Inc,0.47,CRM,Technology,Software - Application
+PEP,PepsiCo Inc,0.45,PEP,Consumer Defensive,Beverages - Non-Alcoholic
+ABT,Abbott Laboratories,0.45,ABT,Healthcare,Medical Devices
+WELL,Welltower Inc,0.42,WELL,Real Estate,REIT - Healthcare Facilities
+UNP,Union Pacific Corp,0.42,UNP,Industrials,Railroads
+COP,ConocoPhillips,0.39,COP,Energy,Oil & Gas E&P
+ISRG,Intuitive Surgical Inc,0.38,ISRG,Healthcare,Medical Instruments & Supplies
+TJX,TJX Cos Inc/The,0.38,TJX,Consumer Cyclical,Apparel Retail
+DHR,Danaher Corp,0.37,DHR,Healthcare,Diagnostics & Research
+UBER,Uber Technologies Inc,0.36,UBER,Technology,Software - Application
+NOW,ServiceNow Inc,0.35,NOW,Technology,Software - Application
+VRTX,Vertex Pharmaceuticals Inc,0.34,VRTX,Healthcare,Biotechnology
+GLW,Corning Inc,0.32,GLW,Technology,Electronic Components
+BKNG,Booking Holdings Inc,0.32,BKNG,Consumer Cyclical,Travel Services
+NEM,Newmont Corp,0.32,NEM,Basic Materials,Gold
+FTNT,Fortinet Inc,0.29,FTNT,Technology,Software - Infrastructure
+MDT,Medtronic PLC,0.29,MDT,Healthcare,Medical Devices
+ACN,Accenture PLC,0.28,ACN,Technology,Information Technology Services
+MCK,McKesson Corp,0.27,MCK,Healthcare,Medical Distribution
+FCX,Freeport-McMoRan Inc,0.27,FCX,Basic Materials,Copper
+LOW,Lowe's Cos Inc,0.27,LOW,Consumer Cyclical,Home Improvement Retail
+TT,Trane Technologies PLC,0.26,TT,Industrials,Building Products & Equipment
+SYK,Stryker Corp,0.25,SYK,Healthcare,Medical Devices
+VRT,Vertiv Holdings Co,0.25,VRT,Industrials,Electrical Equipment & Parts
+EQIX,Equinix Inc,0.24,EQIX,Real Estate,REIT - Specialty
+ADBE,Adobe Inc,0.24,ADBE,Technology,Software - Application
+PWR,Quanta Services Inc,0.24,PWR,Industrials,Engineering & Construction
+JCI,Johnson Controls International plc,0.24,JCI,Industrials,Building Products & Equipment
+EMR,Emerson Electric Co,0.23,EMR,Industrials,Specialty Industrial Machinery
+CSX,CSX Corp,0.23,CSX,Industrials,Railroads
+CDNS,Cadence Design Systems Inc,0.23,CDNS,Technology,Software - Application
+CEG,Constellation Energy Corp,0.22,CEG,Utilities,Utilities - Independent Power Producers
+LITE,Lumentum Holdings Inc,0.22,LITE,Technology,Communication Equipment
+BE,Bloom Energy Corp,0.22,BE,Industrials,Electrical Equipment & Parts
+MMM,3M Co,0.22,MMM,Industrials,Conglomerates
+SHW,Sherwin-Williams Co/The,0.2,SHW,Basic Materials,Specialty Chemicals
+SLB,SLB Ltd,0.2,SLB,Energy,Oil & Gas Equipment & Services
+MDLZ,Mondelez International Inc,0.2,MDLZ,Consumer Defensive,Confectioners
+WM,Waste Management Inc,0.2,WM,Industrials,Waste Management
+ROST,Ross Stores Inc,0.2,ROST,Consumer Cyclical,Apparel Retail
+SNPS,Synopsys Inc,0.2,SNPS,Technology,Software - Infrastructure
+ECL,Ecolab Inc,0.19,ECL,Basic Materials,Specialty Chemicals
+EOG,EOG Resources Inc,0.19,EOG,Energy,Oil & Gas E&P
+REGN,Regeneron Pharmaceuticals Inc,0.18,REGN,Healthcare,Biotechnology
+DASH,DoorDash Inc,0.18,DASH,Consumer Cyclical,Internet Retail
+CTAS,Cintas Corp,0.18,CTAS,Industrials,Specialty Business Services
+ORLY,O'Reilly Automotive Inc,0.18,ORLY,Consumer Cyclical,Auto Parts
+ITW,Illinois Tool Works Inc,0.18,ITW,Industrials,Specialty Industrial Machinery
+CMI,Cummins Inc,0.18,CMI,Industrials,Specialty Industrial Machinery
+CL,Colgate-Palmolive Co,0.18,CL,Consumer Defensive,Household & Personal Products
+UPS,United Parcel Service Inc,0.18,UPS,Industrials,Integrated Freight & Logistics
+TGT,Target Corp,0.18,TGT,Consumer Defensive,Discount Stores
+NSC,Norfolk Southern Corp,0.18,NSC,Industrials,Railroads
+TER,Teradyne Inc,0.17,TER,Technology,Semiconductor Equipment & Materials
+MPWR,Monolithic Power Systems Inc,0.17,MPWR,Technology,Semiconductors
+BSX,Boston Scientific Corp,0.17,BSX,Healthcare,Medical Devices
+APD,Air Products and Chemicals Inc,0.16,APD,Basic Materials,Specialty Chemicals
+TEL,TE Connectivity PLC,0.16,TEL,Technology,Electronic Components
+URI,United Rentals Inc,0.16,URI,Industrials,Rental & Leasing Services
+MNST,Monster Beverage Corp,0.15,MNST,Consumer Defensive,Beverages - Non-Alcoholic
+COR,Cencora Inc,0.15,COR,Healthcare,Medical Distribution
+NXPI,NXP Semiconductors NV,0.15,NXPI,Technology,Semiconductors
+FAST,Fastenal Co,0.15,FAST,Industrials,Industrial Distribution
+CRH,CRH PLC,0.15,CRH,Basic Materials,Building Materials
+FIX,Comfort Systems USA Inc,0.14,FIX,Industrials,Engineering & Construction
+COHR,Coherent Corp,0.14,COHR,Technology,Scientific & Technical Instruments
+NUE,Nucor Corp,0.14,NUE,Basic Materials,Steel
+CTVA,Corteva Inc,0.14,CTVA,Basic Materials,Agricultural Inputs
+BDX,Becton Dickinson & Co,0.14,BDX,Healthcare,Medical Instruments & Supplies
+CAH,Cardinal Health Inc,0.14,CAH,Healthcare,Medical Distribution
+CIEN,Ciena Corp,0.13,CIEN,Technology,Communication Equipment
+WAB,Westinghouse Air Brake Technologies Corp,0.13,WAB,Industrials,Railroads
+GWW,WW Grainger Inc,0.13,GWW,Industrials,Industrial Distribution
+A,Agilent Technologies Inc,0.13,A,Healthcare,Diagnostics & Research
+EW,Edwards Lifesciences Corp,0.13,EW,Healthcare,Medical Devices
+GRMN,Garmin Ltd,0.12,GRMN,Technology,Scientific & Technical Instruments
+CARR,Carrier Global Corp,0.12,CARR,Industrials,Building Products & Equipment
+ROK,Rockwell Automation Inc,0.12,ROK,Industrials,Specialty Industrial Machinery
+NTAP,NetApp Inc,0.11,NTAP,Technology,Software - Infrastructure
+RSG,Republic Services Inc,0.11,RSG,Industrials,Waste Management
+FERG,Ferguson Enterprises Inc,0.11,FERG,Industrials,Industrial Distribution
+WAT,Waters Corp,0.11,WAT,Healthcare,Diagnostics & Research
+ADSK,Autodesk Inc,0.11,ADSK,Technology,Software - Application
+NKE,NIKE Inc,0.11,NKE,Consumer Cyclical,Footwear & Accessories
+EBAY,eBay Inc,0.11,EBAY,Consumer Cyclical,Internet Retail
+P,Everpure Inc,0.11,P,Technology,Computer Hardware
+MCHP,Microchip Technology Inc,0.11,MCHP,Technology,Semiconductors
+IDXX,IDEXX Laboratories Inc,0.11,IDXX,Healthcare,Diagnostics & Research
+FLEX,Flex Ltd,0.11,FLEX,Technology,Electronic Components
+WDAY,Workday Inc,0.11,WDAY,Technology,Software - Application
+AZO,AutoZone Inc,0.1,AZO,Consumer Cyclical,Auto Parts
+ADM,Archer-Daniels-Midland Co,0.1,ADM,Consumer Defensive,Farm Products
+ILMN,Illumina Inc,0.1,ILMN,Healthcare,Diagnostics & Research
+DHI,DR Horton Inc,0.1,DHI,Consumer Cyclical,Residential Construction
+OXY,Occidental Petroleum Corp,0.1,OXY,Energy,Oil & Gas E&P
+ROP,Roper Technologies Inc,0.1,ROP,Technology,Software - Application
+DXCM,Dexcom Inc,0.09,DXCM,Healthcare,Medical Devices
+ODFL,Old Dominion Freight Line Inc,0.09,ODFL,Industrials,Trucking
+KVUE,Kenvue Inc,0.09,KVUE,Consumer Defensive,Household & Personal Products
+JBL,Jabil Inc,0.09,JBL,Technology,Electronic Components
+FANG,Diamondback Energy Inc,0.09,FANG,Energy,Oil & Gas E&P
+GEHC,GE HealthCare Technologies Inc,0.08,GEHC,Healthcare,Medical Devices
+BIIB,Biogen Inc,0.08,BIIB,Healthcare,Drug Manufacturers - General
+ON,ON Semiconductor Corp,0.08,ON,Technology,Semiconductors
+EXPE,Expedia Group Inc,0.08,EXPE,Consumer Cyclical,Travel Services
+STLD,Steel Dynamics Inc,0.08,STLD,Basic Materials,Steel
+KMB,Kimberly-Clark Corp,0.08,KMB,Consumer Defensive,Household & Personal Products
+RMD,ResMed Inc,0.08,RMD,Healthcare,Medical Instruments & Supplies
+VMC,Vulcan Materials Co,0.08,VMC,Basic Materials,Building Materials
+Q,Qnity Electronics Inc,0.07,Q,Technology,Semiconductor Equipment & Materials
+DOV,Dover Corp,0.07,DOV,Industrials,Specialty Industrial Machinery
+OTIS,Otis Worldwide Corp,0.07,OTIS,Industrials,Specialty Industrial Machinery
+MLM,Martin Marietta Materials Inc,0.07,MLM,Basic Materials,Building Materials
+WSM,Williams-Sonoma Inc,0.07,WSM,Consumer Cyclical,Specialty Retail
+EXPD,Expeditors International of Washington Inc,0.07,EXPD,Industrials,Integrated Freight & Logistics
+LH,Labcorp Holdings Inc,0.07,LH,Healthcare,Diagnostics & Research
+IR,Ingersoll Rand Inc,0.07,IR,Industrials,Specialty Industrial Machinery
+CTSH,Cognizant Technology Solutions Corp,0.07,CTSH,Technology,Information Technology Services
+HAL,Halliburton Co,0.07,HAL,Energy,Oil & Gas Equipment & Services
+PPG,PPG Industries Inc,0.06,PPG,Basic Materials,Specialty Chemicals
+XYL,Xylem Inc/NY,0.06,XYL,Industrials,Specialty Industrial Machinery
+HSY,Hershey Co/The,0.06,HSY,Consumer Defensive,Confectioners
+TPR,Tapestry Inc,0.06,TPR,Consumer Cyclical,Luxury Goods
+EL,Estee Lauder Cos Inc/The,0.06,EL,Consumer Defensive,Household & Personal Products
+FFIV,F5 Inc,0.06,FFIV,Technology,Software - Infrastructure
+PHM,PulteGroup Inc,0.06,PHM,Consumer Cyclical,Residential Construction
+WST,West Pharmaceutical Services Inc,0.06,WST,Healthcare,Medical Instruments & Supplies
+MTD,Mettler-Toledo International Inc,0.06,MTD,Healthcare,Diagnostics & Research
+HUBB,Hubbell Inc,0.06,HUBB,Industrials,Electrical Equipment & Parts
+VRSN,VeriSign Inc,0.06,VRSN,Technology,Software - Infrastructure
+CHD,Church & Dwight Co Inc,0.06,CHD,Consumer Defensive,Household & Personal Products
+ULTA,ULTA BEAUTY INC,0.06,ULTA,Consumer Cyclical,Specialty Retail
+VLTO,Veralto Corp,0.06,VLTO,Industrials,Pollution & Treatment Controls
+CPRT,Copart Inc,0.06,CPRT,Industrials,Specialty Business Services
+INCY,Incyte Corp,0.05,INCY,Healthcare,Biotechnology
+TPL,Texas Pacific Land Corp,0.05,TPL,Energy,Oil & Gas E&P
+CF,CF Industries Holdings Inc,0.05,CF,Basic Materials,Agricultural Inputs
+PKG,Packaging Corp of America,0.05,PKG,Consumer Cyclical,Packaging & Containers
+JBHT,JB Hunt Transport Services Inc,0.05,JBHT,Industrials,Integrated Freight & Logistics
+DD,DuPont de Nemours Inc,0.05,DD,Basic Materials,Specialty Chemicals
+FSLR,First Solar Inc,0.05,FSLR,Technology,Solar
+STE,STERIS PLC,0.05,STE,Healthcare,Medical Devices
+NDSN,Nordson Corp,0.05,NDSN,Industrials,Specialty Industrial Machinery
+RDDT,Reddit Inc,0.05,RDDT,Communication Services,Internet Content & Information
+MAS,Masco Corp,0.04,MAS,Industrials,Building Products & Equipment
+RVTY,Revvity Inc,0.04,RVTY,Healthcare,Diagnostics & Research
+BBY,Best Buy Co Inc,0.04,BBY,Consumer Cyclical,Specialty Retail
+TSCO,Tractor Supply Co,0.04,TSCO,Consumer Cyclical,Specialty Retail
+WY,Weyerhaeuser Co,0.04,WY,Real Estate,REIT - Specialty
+TRMB,Trimble Inc,0.04,TRMB,Technology,Scientific & Technical Instruments
+CHRW,CH Robinson Worldwide Inc,0.04,CHRW,Industrials,Integrated Freight & Logistics
+CDW,CDW Corp/DE,0.04,CDW,Technology,Information Technology Services
+PTC,PTC Inc,0.04,PTC,Technology,Software - Application
+GPC,Genuine Parts Co,0.04,GPC,Consumer Cyclical,Auto Parts
+IT,Gartner Inc,0.04,IT,Technology,Information Technology Services
+IEX,IDEX Corp,0.04,IEX,Industrials,Specialty Industrial Machinery
+ZBRA,Zebra Technologies Corp,0.04,ZBRA,Technology,Communication Equipment
+EFX,Equifax Inc,0.04,EFX,Industrials,Consulting Services
+GDDY,GoDaddy Inc,0.03,GDDY,Technology,Software - Infrastructure
+ALB,Albemarle Corp,0.03,ALB,Basic Materials,Specialty Chemicals
+SWKS,Skyworks Solutions Inc,0.03,SWKS,Technology,Semiconductors
+TYL,Tyler Technologies Inc,0.03,TYL,Technology,Software - Application
+LII,Lennox International Inc,0.03,LII,Industrials,Building Products & Equipment
+FICO,Fair Isaac Corp,0.03,FICO,Technology,Software - Application
+CRL,Charles River Laboratories International Inc,0.03,CRL,Healthcare,Diagnostics & Research
+LULU,Lululemon Athletica Inc,0.03,LULU,Consumer Cyclical,Apparel Retail
+MKC,McCormick & Co Inc/MD,0.03,MKC,Consumer Defensive,Packaged Foods
+TECH,Bio-Techne Corp,0.03,TECH,Healthcare,Biotechnology
+RL,Ralph Lauren Corp,0.03,RL,Consumer Cyclical,Apparel Manufacturing
+COO,Cooper Cos Inc/The,0.03,COO,Healthcare,Medical Instruments & Supplies
+DECK,Deckers Outdoor Corp,0.03,DECK,Consumer Cyclical,Footwear & Accessories
+AVY,Avery Dennison Corp,0.03,AVY,Consumer Cyclical,Packaging & Containers
+CSGP,CoStar Group Inc,0.03,CSGP,Real Estate,Real Estate Services
+FDXF,Fedex Freight Holding Co Inc,0.03,FDXF,Industrials,Integrated Freight & Logistics
+ALLE,Allegion plc,0.03,ALLE,Industrials,Security & Protection Services
+GNRC,Generac Holdings Inc,0.03,GNRC,Industrials,Specialty Industrial Machinery
+PODD,Insulet Corp,0.02,PODD,Healthcare,Medical Devices
+ALGN,Align Technology Inc,0.02,ALGN,Healthcare,Medical Instruments & Supplies
+AOS,A O Smith Corp,0.02,AOS,Industrials,Specialty Industrial Machinery
+ROL,Rollins Inc,0.02,ROL,Consumer Cyclical,Personal Services
+PNR,Pentair PLC,0.02,PNR,Industrials,Specialty Industrial Machinery

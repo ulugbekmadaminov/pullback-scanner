@@ -1,0 +1,104 @@
+{
+ "fetched_at_utc": "2026-09-30T17:24:16.018017+00:00",
+ "universe_source": "sp-funds.com CSV",
+ "universe_count": 215,
+ "intraday_start": "2024-10-01",
+ "loaded_4h": 217,
+ "failed": [],
+ "earnings_missing": [],
+ "quality_flagged": [
+  {
+   "ticker": "ALGN",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "AMD",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "BE",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "CEG",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "FDXF",
+   "status": "qisqa tarix"
+  },
+  {
+   "ticker": "FICO",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "FLEX",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "FTNT",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "IDXX",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "IT",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "LITE",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "MRVL",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "NTAP",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "NXPI",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "ORCL",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "P",
+   "status": "qisqa tarix"
+  },
+  {
+   "ticker": "RDDT",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "SNDK",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "SNPS",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "VRT",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "WSM",
+   "status": "keskin sakrash"
+  },
+  {
+   "ticker": "WST",
+   "status": "keskin sakrash"
+  }
+ ],
+ "versions": {
+  "yfinance": "1.7.0",
+  "pandas": "3.0.6",
+  "python": "3.12.14"
+ }
+}
