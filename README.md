@@ -1,54 +1,79 @@
-# Pullback skaner — 2-qadam: ma'lumot yig'ish
+# Saralash — halol AQSh aksiyalari tahlili
 
-Bu repozitoriy backtest uchun ma'lumot yig'adi: SPUS tarkibidagi ~215 halol aksiya
-va QQQ, SPY uchun oxirgi ~2 yillik 4H shamlar, kunlik benchmarklar, hisobot sanalari
-va sifat tekshiruvi. Qoidalar: "Pullback skaner — 1-qadam: qoidalar spetsifikatsiyasi".
+Shaxsiy tahlil dasturi: SPUS (S&P 500 Shariah) aksiyalarini har kuni qoidalar asosida saralaydi,
+har bir ball uchun "nega?" ni ✓/✗ bilan ko'rsatadi, kuzatuv ro'yxatini o'zi yuritadi va qoidalarni
+virtual portfelda sinab boradi. **Bu investitsiya maslahati emas.** Real savdodan oldin halollik Hyssa'da tekshiriladi.
 
-## Bir martalik sozlash (10 daqiqa)
+```
+engine/      Python dvigatel: ma'lumot, indikatorlar, signallar, ball, kuzatuv, portfel, backtest
+app/         PWA ilova (Vite + TypeScript), telefon va kompyuterda ishlaydi, offline ham ochiladi
+supabase/    ixtiyoriy bulut sinxroni uchun SQL (jadvallar + RLS)
+state/       dvigatel holati — har kuni commit qilinadi (o'zgarmas audit izi)
+docs/        QOIDALAR-v2.md (barcha qoidalar va raqamlar), LOYIHA-HISOBOTI.md, BACKTEST.md
+github-workflows/  .github/workflows ga qo'lda ko'chiriladigan 2 ta workflow
+legacy/      eski 2-qadam kodi (ma'lumot yig'ish), faqat tarix uchun
+```
 
-1. github.com da yangi **public** repozitoriy oching, masalan `pullback-scanner`.
-   Public bo'lishi kerak: unda faqat ochiq narx ma'lumoti bo'ladi, shaxsiy narsa yo'q,
-   va Claude natijani to'g'ridan-to'g'ri o'qiy oladi.
-2. **Add file → Upload files** orqali shu ZIP ichidagi barcha fayl va papkalarni yuklang
-   (`.github` papkasi ham kirishi shart). **Commit changes** bosing.
-3. **Settings → Actions → General → Workflow permissions** da
-   **Read and write permissions** ni tanlab, **Save** bosing.
+Har kuni AQSh bozori yopilgach (21:40 UTC) GitHub Actions: testlar → skaner → `state/` commit →
+ilovani yig'ish → GitHub Pages'ga joylash. Ilova manzili: `https://<login>.github.io/<repo>/`.
 
-## Ishga tushirish
+## Bir martalik sozlash
 
-1. **Actions** bo'limi → chapda **"2-qadam — ma'lumot yig'ish"** → **Run workflow**.
-2. 20–40 daqiqa kuting. Yashil ✓ chiqsa, `data/` papkasi repozitoriyda paydo bo'ladi.
-3. Repozitoriy havolasini Claude'ga yuboring.
+### 1. Fayllarni yuklash
+1. Repozitoriyda **Add file → Upload files** → ZIP ichidagi hamma narsani tashlang → **Commit changes**.
+2. Eski 2-qadam fayllarini o'chiring (ular endi `legacy/` ichida): ildizdagi `config.py`, `run_fetch.py`,
+   `src/` papkasi, `tests/test_data.py`, hamda `.github/workflows/fetch-data.yml`.
+   `data/` papkasi (muzlatilgan 4H ma'lumot) qolishi mumkin.
 
-Qizil ✗ chiqsa, uning sahifasidagi xabarni skrinshot qilib yuboring.
+### 2. Workflow'larni yaratish (brauzer `.github` papkasini yuklamaydi)
+1. **Add file → Create new file**, nomi: `.github/workflows/daily.yml`.
+   Ichiga `github-workflows/daily.yml` mazmunini to'liq ko'chiring → Commit.
+2. Xuddi shunday `.github/workflows/backtest.yml` ← `github-workflows/backtest.yml`.
 
-## Muhim: ma'lumot muzlatiladi
+### 3. Ruxsatlar va Pages
+1. **Settings → Actions → General → Workflow permissions → Read and write permissions → Save.**
+2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 
-Backtest bitta, o'zgarmas ma'lumot to'plamida o'tkaziladi. Shuning uchun workflow'ni
-**faqat bir marta** ishga tushiring. Qayta ishga tushirilsa, sozlash (70%) va tekshiruv
-(30%) qismlari chegarasi siljiydi va natijani solishtirib bo'lmay qoladi.
+### 4. Birinchi ishga tushirish
+1. **Actions → Kundalik skaner → Run workflow** (`demo` belgilanmagan). 20–40 daqiqa.
+2. Yashil ✓ dan keyin ilova Pages manzilida ochiladi. Telefonda: brauzer menyusi → "Bosh ekranga qo'shish".
+3. **Actions → Backtest → Run workflow** — 10 yillik tarixda pullback va breakout sinovi (1–2 soat).
+   Natija keyingi kunlik ishdan so'ng ilovaning Backtest bo'limida va `docs/BACKTEST.md` da.
 
-## Natija tarkibi (`data/`)
+Birinchi kunlarda bilish kerak:
+- Fundamental ma'lumot kuniga ~70 aksiyadan yangilanadi — 215 ta aksiya ~4 kunda to'liq qamraladi.
+  Shungacha ba'zi kartalarda "ma'lumot yo'q" bo'ladi va ular uzoq kuzatuvga kirmaydi.
+- Virtual portfel va strategiyalar musobaqasi **birinchi real ishdan** boshlanadi. Xulosa uchun kamida
+  100 ta savdo / 1 yil kerak — ungacha faqat kuzating.
+- Yangi narsani sinash kerak bo'lsa: Run workflow → `demo` ni belgilang (sun'iy ma'lumot, `state/` ga yozilmaydi).
 
-| Fayl | Nima |
-| --- | --- |
-| `universe.csv` | Aksiyalar ro'yxati, sektor va sanoat bilan |
-| `4h/<TICKER>.parquet` | 4H shamlar: 09:30–13:30 va 13:30–16:00 (ET) |
-| `1d/QQQ.parquet`, `1d/SPY.parquet` | 10 yillik kunlik shamlar (bozor rejimi uchun) |
-| `earnings.json` | Hisobot sanalari (`null` — yuklanmadi) |
-| `quality.csv` | Har aksiya uchun: bo'shliqlar, keskin sakrashlar, OHLC xatolari |
-| `manifest.json` | Qachon, qaysi manbadan, qaysi versiyalar bilan yig'ilgani |
-
-## Ma'lum cheklovlar
-
-- Ro'yxat bugungi SPUS tarkibi; 2 yil oldin u boshqacha bo'lgan (natija biroz optimistik).
-- yfinance bepul, norasmiy manba: ba'zan bo'shliq bo'ladi, `quality.csv` ularni ko'rsatadi.
-- Yangi birjaga chiqqan aksiyalarda tarix qisqa (`qisqa tarix` belgisi).
+### 5. Bulut sinxroni (ixtiyoriy — jurnalni ikki qurilmada ko'rish uchun)
+Supabase'siz ham hammasi ishlaydi: jurnal shu qurilmada saqlanadi, Sozlamalar → Zaxira orqali faylga olinadi.
+1. supabase.com → yangi loyiha (bepul). **SQL Editor** → `supabase/migrations/001_init.sql` ni to'liq qo'yib **Run**.
+2. **Authentication → Sign In / Providers → Email**: "Allow new users to sign up" ni **o'chiring**.
+   **Authentication → Users → Add user** → o'z emailingiz.
+3. **Authentication → URL Configuration → Site URL**: ilovaning Pages manzili.
+4. GitHub → **Settings → Secrets and variables → Actions → New repository secret**:
+   `SUPABASE_URL` (Project URL), `SUPABASE_ANON_KEY` (anon/publishable key),
+   `SUPABASE_SERVICE_KEY` (service_role key — **hech qayerga ko'chirmang**, faqat shu yerda).
+5. Kundalik skanerni qayta ishga tushiring. Ilovada Sozlamalar → Bulut sinxroni → email → pochtadagi havola.
 
 ## Mahalliy ishga tushirish (ixtiyoriy)
-
 ```bash
 pip install -r requirements.txt
-python -m pytest -q
-python run_fetch.py
+python -m pytest -q                      # 22 test
+python -m engine.pipeline --demo         # sun'iy ma'lumot bilan to'liq skaner
+python run_backtest.py --demo --limit 60
+cd app && npm ci && npm run dev          # http://localhost:5173
 ```
+
+## Qoida o'zgartirish tartibi
+Barcha raqamlar `engine/config.py` da. O'zgarish faqat yangi versiya sifatida: `RULES_VERSION` oshiriladi,
+sababi `docs/QOIDALAR-v2.md` ga yoziladi, backtest qayta ishlatiladi. Dastur o'zi qoidani o'zgartirmaydi —
+Portfel → O'rganish bo'limida faqat taklif chiqaradi.
+
+## Ma'lum cheklovlar
+- yfinance norasmiy bepul manba: ba'zan bo'shliq yoki kechikish bo'ladi.
+- Ro'yxat bugungi SPUS tarkibi — tarixiy backtest biroz optimistik (omon qolganlar xatosi).
+- Fundamental ma'lumotning o'tmishdagi holati yo'q, shuning uchun fundamental strategiyalar orqaga
+  qarab emas, bugundan oldinga — virtual portfel musobaqasida sinaladi.
