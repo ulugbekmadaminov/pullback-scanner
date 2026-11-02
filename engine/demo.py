@@ -1,91 +1,217 @@
-"""Sun'iy (DEMO) ma'lumot: internetsiz sinov va ilova ko'rinishi uchun.
+"""Ma'lumot qatlami: SPUS ro'yxati, kunlik narxlar, hisobot sanalari, dividendlar.
 
-Natijalar haqiqiy bozorni aks ettirmaydi — ilova DEMO belgisini ko'rsatadi.
+Tarmoq bilan ishlaydigan hamma narsa shu faylda — qolgan modullar faqat DataFrame bilan ishlaydi
+(shuning uchun ularni internetsiz, demo ma'lumotda sinash mumkin).
 """
 from __future__ import annotations
 
-import numpy as np
+import io
+import json
+import re
+import time
+from pathlib import Path
+
 import pandas as pd
 
 from . import config as C
 
-SECTORS = list(C.SECTOR_TO_ETF.keys())
+TICKER_RE = re.compile(r"^[A-Z]{1,5}(?:[.\-][A-Z])?$")
+COLS = ["open", "high", "low", "close", "volume"]
 
 
-def _path(rng, n, mu, vol, start, market=None, beta=1.0):
-    eps = rng.normal(0, vol, n)
-    r = mu + eps + (beta * market if market is not None else 0)
-    close = start * np.exp(np.cumsum(r))
-    spread = np.abs(rng.normal(0, vol * 0.8, n)) + vol * 0.3
-    open_ = close * np.exp(rng.normal(0, vol * 0.4, n))
-    high = np.maximum(open_, close) * (1 + spread * rng.uniform(0.2, 1.0, n))
-    low = np.minimum(open_, close) * (1 - spread * rng.uniform(0.2, 1.0, n))
-    vol_ = rng.lognormal(14, 0.4, n) * (1 + 3 * np.abs(eps) / vol)
-    return pd.DataFrame({"open": open_, "high": high, "low": low, "close": close, "volume": vol_})
+# ── Aksiyalar ro'yxati ────────────────────────────────────────────────────────
+def _col(df: pd.DataFrame, *names: str) -> str | None:
+    norm = {re.sub(r"[^a-z]", "", c.lower()): c for c in df.columns}
+    return next((norm[n] for n in names if n in norm), None)
 
 
-def make(tickers: list[str], years: int = 12, seed: int = 7) -> tuple[dict, dict, dict, dict]:
-    rng = np.random.default_rng(seed)
-    end = pd.Timestamp.today().normalize() - pd.offsets.BDay(1)
-    idx = pd.bdate_range(end=end, periods=252 * years)
-    n = len(idx)
-    # bozor: bir necha rejim (o'sish, qulash, yon)
-    regime_mu = np.zeros(n)
-    k = 0
-    while k < n:
-        L = int(rng.integers(120, 500))
-        regime_mu[k:k + L] = rng.choice([0.0008, 0.0005, -0.0012, 0.0001], p=[.45, .3, .1, .15])
-        k += L
-    market = regime_mu + rng.normal(0, 0.009, n)
-    prices, fund, earn, divs = {}, {}, {}, {}
+def parse_holdings(text: str) -> pd.DataFrame:
+    """Fondning rasmiy CSV matnidan toza ro'yxat: ticker, name, weight, yf."""
+    df = pd.read_csv(io.StringIO(text))
+    t = _col(df, "stockticker", "ticker", "symbol")
+    if t is None:
+        raise ValueError(f"Ticker ustuni topilmadi: {list(df.columns)}")
+    n, w = _col(df, "securityname", "name"), _col(df, "weightings", "weight")
+    out = pd.DataFrame({"ticker": df[t].astype(str).str.strip().str.upper()})
+    out["name"] = df[n].astype(str).str.strip() if n else ""
+    out["weight"] = pd.to_numeric(df[w].astype(str).str.replace(",", "").str.replace("%", ""),
+                                  errors="coerce") if w else float("nan")
+    out = out[out["ticker"].map(lambda x: bool(TICKER_RE.match(x))) & ~(out["weight"] <= 0)]
+    out["yf"] = out["ticker"].str.replace(".", "-", regex=False)
+    return out.drop_duplicates("ticker").sort_values("weight", ascending=False).reset_index(drop=True)
 
-    def put(t, df):
-        df.index = idx
-        prices[t] = df
 
-    put("SPY", _path(rng, n, 0, 0.002, 300, market, 1.0))
-    put("SPUS", _path(rng, n, 0.00005, 0.003, 25, market, 1.05))
-    put("QQQ", _path(rng, n, 0.0001, 0.003, 200, market, 1.25))
-    put("DIA", _path(rng, n, 0, 0.003, 250, market, 0.85))
-    put("IWM", _path(rng, n, -0.00005, 0.005, 150, market, 1.2))
-    vix = 16 + 120 * pd.Series(-market).rolling(10, min_periods=1).mean().clip(lower=-0.05).to_numpy() * 10 + rng.normal(0, 1.2, n)
-    vix = np.clip(vix, 10, 60)
-    put("^VIX", pd.DataFrame({"open": vix, "high": vix * 1.04, "low": vix * 0.96, "close": vix, "volume": 0.0}))
-    for etf in C.SECTOR_ETFS:
-        put(etf, _path(rng, n, rng.normal(0, 0.0002), 0.004, 80, market, rng.uniform(0.6, 1.3)))
-    for i, t in enumerate(tickers):
-        sector = SECTORS[i % len(SECTORS)]
-        mu = rng.normal(0.0001, 0.00025)
-        put(t, _path(rng, n, mu, rng.uniform(0.011, 0.024), rng.uniform(20, 400), market, rng.uniform(0.6, 1.6)))
-        q = pd.date_range(idx[0], idx[-1] + pd.Timedelta(days=60), freq="QS-JAN") + pd.Timedelta(days=int(rng.integers(20, 40)))
-        earn[t] = [d.date().isoformat() for d in q]
-        price = float(prices[t]["close"].iloc[-1])
-        g = rng.normal(0.10, 0.12)
-        fund[t] = {
-            "name": f"Demo {t}", "sector": sector, "industry": sector, "price": price,
-            "mcap": float(rng.lognormal(24.5, 1.0)), "rev_q": g + rng.normal(0, .05), "rev_y": g, "rev_3y": g * .9,
-            "eps_q": g * 1.3 + rng.normal(0, .1), "eps_y": g * 1.2, "eps_3y": g * 1.1, "fcf_3y": g,
-            "gross_margin": float(rng.uniform(.2, .8)), "op_margin": float(rng.uniform(.0, .35)),
-            "net_margin": float(rng.uniform(-.05, .3)), "fcf_margin": float(rng.uniform(-.05, .3)),
-            "roe": float(rng.uniform(-.05, .45)), "roa": float(rng.uniform(0, .2)),
-            "current_ratio": float(rng.uniform(.7, 3.0)), "quick_ratio": float(rng.uniform(.5, 2.5)),
-            "cash_ratio": float(rng.uniform(.1, 1.5)), "de": float(rng.uniform(0, 1.8)),
-            "debt_assets": float(rng.uniform(0, .45)), "interest_cov": float(rng.uniform(1, 60)),
-            "pe": float(rng.uniform(8, 60)), "pb": float(rng.uniform(1, 15)), "ps": float(rng.uniform(1, 15)),
-            "pfcf": float(rng.uniform(8, 60)), "peg": float(rng.uniform(.5, 4)),
-            "piotroski": float(rng.integers(2, 10)), "piotroski_items": [],
-            "implied_growth": float(rng.uniform(-.05, .3)),
-            "halal_debt": float(rng.uniform(0, .35)), "halal_cash": float(rng.uniform(0, .25)),
-            "halal_income": float(rng.uniform(0, .04)), "interest_exp_rev": float(rng.uniform(0, .04)),
-            "impure_per_share_q": float(rng.uniform(0, .3)),
-            "div_yield": float(rng.choice([0, rng.uniform(.005, .045)])), "div_growth": float(rng.uniform(-.05, .12)),
-            "div_years_up": int(rng.choice([0, 3, 12, 27, 52], p=[.4, .25, .2, .1, .05])),
-            "payout": float(rng.uniform(.1, .8)), "insiders": float(rng.uniform(0, .2)),
-            "institutions": float(rng.uniform(.4, .9)), "fetched": end.date().isoformat(),
-        }
-        fund[t]["halal_ok"] = fund[t]["halal_debt"] < .3 and fund[t]["halal_cash"] < .3
-        if fund[t]["div_yield"] > 0:
-            yrs = range(end.year - 30, end.year + 1)
-            base = fund[t]["div_yield"] * price / 4 / (1.06 ** 30)
-            divs[t] = {f"{y}-0{m}-15": base * (1.06 ** (y - end.year + 30)) for y in yrs for m in (2, 5, 8)}
-    return prices, fund, earn, divs
+def load_snapshot() -> tuple[pd.DataFrame, str]:
+    files = sorted((C.ROOT / "engine").glob("spus_snapshot_*.txt")) + sorted((C.ROOT / "universe").glob("spus_snapshot_*.txt"))
+    path = max(files, key=lambda p: p.name)
+    words = [w for ln in path.read_text().splitlines() if not ln.startswith("#") for w in ln.split()]
+    df = pd.DataFrame({"ticker": [w for w in dict.fromkeys(words) if TICKER_RE.match(w)]})
+    df["name"], df["weight"] = "", float("nan")
+    df["yf"] = df["ticker"].str.replace(".", "-", regex=False)
+    return df, path.name
+
+
+def fetch_universe() -> tuple[pd.DataFrame, str]:
+    import requests
+    for attempt in range(3):
+        try:
+            r = requests.get(C.SPUS_CSV_URL, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
+            r.raise_for_status()
+            df = parse_holdings(r.text)
+            if len(df) >= 100:
+                return df, "sp-funds.com CSV"
+        except Exception as e:  # noqa: BLE001
+            print(f"[ogohlantirish] SPUS CSV: {e}")
+            time.sleep(3 * (attempt + 1))
+    df, name = load_snapshot()
+    return df, f"zaxira: {name}"
+
+
+# ── Narxlar ───────────────────────────────────────────────────────────────────
+def _normalize(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.rename(columns=str.lower)
+    df = df[[c for c in COLS if c in df.columns]].dropna(subset=["open", "high", "low", "close"])
+    idx = pd.DatetimeIndex(df.index)
+    if idx.tz is not None:
+        idx = idx.tz_convert(C.TZ).tz_localize(None)
+    df.index = idx.normalize()
+    df.index.name = "date"
+    df = df.sort_index()
+    return df[~df.index.duplicated(keep="last")].astype(float)
+
+
+def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 40, period: str | None = None) -> dict[str, pd.DataFrame]:
+    """yfinance'dan split/dividendga moslangan kunlik shamlar. Yuklanmaganlar natijada bo'lmaydi."""
+    import yfinance as yf
+    out: dict[str, pd.DataFrame] = {}
+    for i in range(0, len(tickers), batch):
+        part = tickers[i:i + batch]
+        for attempt in range(3):
+            try:
+                raw = yf.download(part, period=period or f"{years}y", interval="1d", auto_adjust=True,
+                                  group_by="ticker", threads=True, progress=False)
+                if isinstance(raw.columns, pd.MultiIndex):
+                    lv = set(raw.columns.get_level_values(0))
+                    for t in part:
+                        if t in lv and not raw[t].dropna(how="all").empty:
+                            out[t] = _normalize(raw[t].dropna(how="all"))
+                elif len(part) == 1 and not raw.empty:
+                    out[part[0]] = _normalize(raw)
+                break
+            except Exception as e:  # noqa: BLE001
+                print(f"[qayta urinish {attempt + 1}] {part[0]}…: {e}")
+                time.sleep(5 * (attempt + 1))
+        time.sleep(1)
+    return out
+
+
+def drop_unfinished(df: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.DataFrame:
+    """Bozor hali yopilmagan bo'lsa (Nyu-York vaqti 16:15 dan oldin), bugungi chala shamni olib tashlaydi.
+    Skaner qo'lda kun o'rtasida ishga tushirilsa ham faqat yopilgan kunlar tahlil qilinadi."""
+    now = now if now is not None else pd.Timestamp.now(tz=C.TZ)
+    if df.empty or df.index[-1] < now.tz_localize(None).normalize():
+        return df
+    if now.hour * 60 + now.minute < 16 * 60 + 15:
+        return df.iloc[:-1]
+    return df
+
+
+def load_cached_prices(tickers: list[str], years: int = C.DAILY_YEARS) -> dict[str, pd.DataFrame]:
+    """Keshdagi parquet'ni o'qiydi va faqat yetishmagan oxirgi kunlarni yuklaydi."""
+    C.CACHE.mkdir(parents=True, exist_ok=True)
+    path = C.CACHE / "daily.parquet"
+    have: dict[str, pd.DataFrame] = {}
+    if path.exists():
+        big = pd.read_parquet(path)
+        for t, g in big.groupby("ticker"):
+            have[t] = g.drop(columns="ticker")
+    # Har ishda keshdagi hamma aksiyaning oxirgi oyi qayta yuklanadi: yangi kunlar qo'shiladi,
+    # oxirgi shamlar (masalan, kecha yopilmagan sham) to'g'risi bilan almashtiriladi.
+    fresh_full = [t for t in tickers if t not in have]
+    fresh_tail = [t for t in tickers if t in have]
+    got = download_daily(fresh_full, years) if fresh_full else {}
+    if fresh_tail:
+        tail = download_daily(fresh_tail, period="1mo")
+        for t, df in tail.items():
+            # split bo'lsa eski tarix moslashtirilmagan bo'ladi → to'liq qayta yuklaymiz
+            old = have[t]
+            common = old.index.intersection(df.index)
+            # taqqoslash oyning birinchi umumiy kunida: oxirgi kun chala sham bo'lishi mumkin
+            if len(common) and abs(old.loc[common[0], "close"] / df.loc[common[0], "close"] - 1) > 0.02:
+                got.update(download_daily([t], years))
+            else:
+                got[t] = pd.concat([old[old.index < df.index[0]], df])
+    have.update(got)
+    have = {t: drop_unfinished(df) for t, df in have.items()}
+    frames = [df.assign(ticker=t) for t, df in have.items()]
+    if frames:
+        pd.concat(frames).to_parquet(path)
+    return {t: have[t] for t in tickers if t in have}
+
+
+# ── Hisobot sanalari va dividendlar ───────────────────────────────────────────
+def fetch_earnings_and_dividends(tickers: list[str], pause: float = 0.25) -> tuple[dict, dict]:
+    import yfinance as yf
+    earn, divs = {}, {}
+    for t in tickers:
+        try:
+            tk = yf.Ticker(t)
+            ed = tk.get_earnings_dates(limit=16)
+            if ed is not None and not ed.empty:
+                idx = pd.DatetimeIndex(ed.index)
+                idx = idx.tz_convert(C.TZ) if idx.tz is not None else idx
+                earn[t] = sorted({d.date().isoformat() for d in idx})
+            d = tk.dividends
+            if d is not None and not d.empty:
+                di = pd.DatetimeIndex(d.index)
+                di = di.tz_convert(C.TZ).tz_localize(None) if di.tz is not None else di
+                divs[t] = {k.date().isoformat(): float(v) for k, v in zip(di, d.values)}
+        except Exception as e:  # noqa: BLE001
+            print(f"[ogohlantirish] {t} hisobot/dividend: {e}")
+        time.sleep(pause)
+    return earn, divs
+
+
+def read_json(path: Path, default):
+    try:
+        return json.loads(path.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
+
+
+def write_json(path: Path, obj) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(clean(obj), ensure_ascii=False, separators=(",", ":"), default=_jsonable,
+                              allow_nan=False))
+    tmp.replace(path)
+
+
+def clean(o):
+    """NaN/inf → None (JSON standartida NaN yo'q), numpy turlari → oddiy Python turlari."""
+    import math
+    import numpy as np
+    if isinstance(o, dict):
+        return {str(k): clean(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [clean(v) for v in o]
+    if isinstance(o, (float, np.floating)):
+        return None if not math.isfinite(float(o)) else round(float(o), 6)
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.bool_):
+        return bool(o)
+    return o
+
+
+def _jsonable(o):
+    import numpy as np
+    if isinstance(o, (np.integer,)):
+        return int(o)
+    if isinstance(o, (np.floating,)):
+        return None if not np.isfinite(o) else round(float(o), 6)
+    if isinstance(o, (pd.Timestamp,)):
+        return o.date().isoformat()
+    if isinstance(o, (np.bool_,)):
+        return bool(o)
+    raise TypeError(type(o))
