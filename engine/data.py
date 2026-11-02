@@ -80,7 +80,7 @@ def _normalize(df: pd.DataFrame) -> pd.DataFrame:
     return df[~df.index.duplicated(keep="last")].astype(float)
 
 
-def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 40) -> dict[str, pd.DataFrame]:
+def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 40, period: str | None = None) -> dict[str, pd.DataFrame]:
     """yfinance'dan split/dividendga moslangan kunlik shamlar. Yuklanmaganlar natijada bo'lmaydi."""
     import yfinance as yf
     out: dict[str, pd.DataFrame] = {}
@@ -88,7 +88,7 @@ def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 
         part = tickers[i:i + batch]
         for attempt in range(3):
             try:
-                raw = yf.download(part, period=f"{years}y", interval="1d", auto_adjust=True,
+                raw = yf.download(part, period=period or f"{years}y", interval="1d", auto_adjust=True,
                                   group_by="ticker", threads=True, progress=False)
                 if isinstance(raw.columns, pd.MultiIndex):
                     lv = set(raw.columns.get_level_values(0))
@@ -105,6 +105,17 @@ def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 
     return out
 
 
+def drop_unfinished(df: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.DataFrame:
+    """Bozor hali yopilmagan bo'lsa (Nyu-York vaqti 16:15 dan oldin), bugungi chala shamni olib tashlaydi.
+    Skaner qo'lda kun o'rtasida ishga tushirilsa ham faqat yopilgan kunlar tahlil qilinadi."""
+    now = now if now is not None else pd.Timestamp.now(tz=C.TZ)
+    if df.empty or df.index[-1] < now.tz_localize(None).normalize():
+        return df
+    if now.hour * 60 + now.minute < 16 * 60 + 15:
+        return df.iloc[:-1]
+    return df
+
+
 def load_cached_prices(tickers: list[str], years: int = C.DAILY_YEARS) -> dict[str, pd.DataFrame]:
     """Keshdagi parquet'ni o'qiydi va faqat yetishmagan oxirgi kunlarni yuklaydi."""
     C.CACHE.mkdir(parents=True, exist_ok=True)
@@ -114,21 +125,24 @@ def load_cached_prices(tickers: list[str], years: int = C.DAILY_YEARS) -> dict[s
         big = pd.read_parquet(path)
         for t, g in big.groupby("ticker"):
             have[t] = g.drop(columns="ticker")
-    stale = [t for t in tickers if t not in have or (pd.Timestamp.now().normalize() - have[t].index[-1]).days > 4]
-    fresh_full = [t for t in stale if t not in have]
-    fresh_tail = [t for t in stale if t in have]
+    # Har ishda keshdagi hamma aksiyaning oxirgi oyi qayta yuklanadi: yangi kunlar qo'shiladi,
+    # oxirgi shamlar (masalan, kecha yopilmagan sham) to'g'risi bilan almashtiriladi.
+    fresh_full = [t for t in tickers if t not in have]
+    fresh_tail = [t for t in tickers if t in have]
     got = download_daily(fresh_full, years) if fresh_full else {}
     if fresh_tail:
-        tail = download_daily(fresh_tail, years=1)
+        tail = download_daily(fresh_tail, period="1mo")
         for t, df in tail.items():
             # split bo'lsa eski tarix moslashtirilmagan bo'ladi → to'liq qayta yuklaymiz
             old = have[t]
             common = old.index.intersection(df.index)
-            if len(common) and abs(old.loc[common[-1], "close"] / df.loc[common[-1], "close"] - 1) > 0.02:
+            # taqqoslash oyning birinchi umumiy kunida: oxirgi kun chala sham bo'lishi mumkin
+            if len(common) and abs(old.loc[common[0], "close"] / df.loc[common[0], "close"] - 1) > 0.02:
                 got.update(download_daily([t], years))
             else:
                 got[t] = pd.concat([old[old.index < df.index[0]], df])
     have.update(got)
+    have = {t: drop_unfinished(df) for t, df in have.items()}
     frames = [df.assign(ticker=t) for t, df in have.items()]
     if frames:
         pd.concat(frames).to_parquet(path)

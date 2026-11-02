@@ -263,3 +263,13 @@ def test_pipeline_demo_end_to_end(tmp_path):
         assert meta["demo"] is True
     finally:
         C.STATE = old
+
+
+def test_drop_unfinished_bar():
+    from engine.data import drop_unfinished
+    idx = pd.to_datetime(["2026-10-30", "2026-11-02"])
+    df = pd.DataFrame({"open": [1, 2], "high": [1, 2], "low": [1, 2], "close": [1, 2], "volume": [1, 2]}, index=idx, dtype=float)
+    ny = "America/New_York"
+    assert len(drop_unfinished(df, pd.Timestamp("2026-11-02 11:00", tz=ny))) == 1    # savdo davom etmoqda
+    assert len(drop_unfinished(df, pd.Timestamp("2026-11-02 16:40", tz=ny))) == 2    # yopilgan
+    assert len(drop_unfinished(df, pd.Timestamp("2026-11-03 10:00", tz=ny))) == 2    # kechagi sham — to'liq
