@@ -1,0 +1,43 @@
+name: Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      demo:
+        description: "DEMO ma'lumot bilan"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: prices-${{ github.run_id }}
+          restore-keys: prices-
+      - run: pip install -r requirements.txt
+      - name: Backtest
+        run: |
+          if [ "${{ inputs.demo }}" = "true" ]; then python run_backtest.py --demo; else python run_backtest.py; fi
+      - name: Natijani saqlash
+        if: ${{ inputs.demo != true }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add state/backtest docs/BACKTEST.md
+          git commit -m "backtest: $(date -u +%Y-%m-%d)" || echo "O'zgarish yo'q"
+          git push
+      - name: Qisqa hisobot
+        if: always()
+        run: cat docs/BACKTEST*.md >> "$GITHUB_STEP_SUMMARY" || true
