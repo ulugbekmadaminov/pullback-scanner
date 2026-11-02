@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.cache/
+.demo-state/
+app/node_modules/
+app/dist/
+app/public/data/
+docs/BACKTEST-demo.md
+*.tmp
