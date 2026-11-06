@@ -1,1 +1,1 @@
-{"n":0,"groups":[],"proposals":[],"errors":{}}
+{"n":1,"groups":[{"flag":"kind","value":"breakout","n":1,"exp":-1.059,"win":0.0},{"flag":"rejim","value":"yellow","n":1,"exp":-1.059,"win":0.0},{"flag":"vix","value":"normal","n":1,"exp":-1.059,"win":0.0},{"flag":"sektor_kuchli","value":"False","n":1,"exp":-1.059,"win":0.0},{"flag":"ep","value":"False","n":1,"exp":-1.059,"win":0.0},{"flag":"rs","value":"80+","n":1,"exp":-1.059,"win":0.0}],"proposals":[],"errors":{"stop_gap":0,"time_exit_loss":0,"watch_exit":0}}
