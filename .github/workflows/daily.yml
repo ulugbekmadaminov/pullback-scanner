@@ -2,7 +2,10 @@ name: Kundalik skaner
 
 on:
   schedule:
-    - cron: "40 21 * * 1-5"   # AQSh bozori yopilgach (21:40 UTC = Zagreb 22:40/23:40)
+    # 04:30 UTC, seshanba–shanba = Nyu-York 23:30/00:30 (oldingi savdo kuni yopilgandan ~7 soat keyin).
+    # Yahoo kunlik shamni kechroq e'lon qiladi: 20:40 NY dagi ishlarda o'sha kun hali yo'q edi.
+    # GitHub rejadagi ishni bir necha soat kechiktirishi mumkin — baribir bozor ochilishidan (13:30 UTC) oldin.
+    - cron: "30 4 * * 2-6"
   workflow_dispatch:
     inputs:
       demo:
@@ -24,15 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Narx keshi
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache
           key: prices-${{ github.run_id }}
@@ -60,7 +63,7 @@ jobs:
           git commit -m "skaner: $(date -u +%Y-%m-%d)" || echo "O'zgarish yo'q"
           git push
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
@@ -76,7 +79,7 @@ jobs:
           npm ci
           npm run build
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: app/dist
 
@@ -88,4 +91,4 @@ jobs:
       url: ${{ steps.d.outputs.page_url }}
     steps:
       - id: d
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

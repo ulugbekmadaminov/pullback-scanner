@@ -14,7 +14,7 @@ github-workflows/  .github/workflows ga qo'lda ko'chiriladigan 2 ta workflow
 legacy/      eski 2-qadam kodi (ma'lumot yig'ish), faqat tarix uchun
 ```
 
-Har kuni AQSh bozori yopilgach (21:40 UTC) GitHub Actions: testlar → skaner → `state/` commit →
+Har kuni ertalab, AQSh bozorining oldingi kuni yopilgach (04:30 UTC, seshanba–shanba) GitHub Actions: testlar → skaner → `state/` commit →
 ilovani yig'ish → GitHub Pages'ga joylash. Ilova manzili: `https://<login>.github.io/<repo>/`.
 
 ## Bir martalik sozlash

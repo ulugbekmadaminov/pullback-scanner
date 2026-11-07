@@ -54,13 +54,24 @@ def build(prices: dict[str, pd.DataFrame], tickers: list[str], sectors: dict[str
     return F
 
 
-def mid_entry_mask(F: dict) -> pd.DataFrame:
+def mid_base_mask(F: dict) -> pd.DataFrame:
+    """Asosiy yo'l: bosqich 2, kuchli, cho'qqiga yaqin, kuchli sektorda."""
     e = C.WATCH_MID_ENTRY
     base = (F["stage"] == 2) & (F["rs_pct"] >= e["rs_pct_min"]) & (F["from_high"] <= e["from_high_max"]) \
         & F["ema200_untouched"] & F["liquid"]
     if e["sector_top_half"]:
         base &= F["sector_top"]
-    return base | (F["ep"] & F["liquid"] & (F["close"] > F["sma150"]))
+    return base
+
+
+def mid_entry_mask(F: dict) -> pd.DataFrame:
+    base = mid_base_mask(F)
+    # EP (katalizator) yo'li ham chiqish qoidalarini buzmasligi kerak — aks holda aksiya bugun kirib,
+    # ertaga "nisbiy kuch < 40" yoki "cho'qqidan > 35%" bilan chiqib ketadi (kirdi-chiqdi).
+    x = C.WATCH_MID_EXIT
+    ep_ok = F["ep"] & F["liquid"] & (F["close"] > F["sma150"]) \
+        & (F["rs_pct"] >= x["rs_pct_below"]) & (F["from_high"] <= x["from_high_over"])
+    return base | ep_ok
 
 
 def mid_exit_reason(F: dict, i: int, t: str) -> str | None:

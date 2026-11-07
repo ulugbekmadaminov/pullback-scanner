@@ -273,3 +273,24 @@ def test_drop_unfinished_bar():
     assert len(drop_unfinished(df, pd.Timestamp("2026-11-02 11:00", tz=ny))) == 1    # savdo davom etmoqda
     assert len(drop_unfinished(df, pd.Timestamp("2026-11-02 16:40", tz=ny))) == 2    # yopilgan
     assert len(drop_unfinished(df, pd.Timestamp("2026-11-03 10:00", tz=ny))) == 2    # kechagi sham — to'liq
+
+
+def test_ep_entry_respects_exit_rules():
+    """EP orqali kirgan aksiya chiqish qoidalarini buzmasligi kerak (kirdi-chiqdi bo'lmasin)."""
+    from engine.features import mid_entry_mask
+    idx = pd.bdate_range("2026-01-01", periods=3)
+    one = lambda v: pd.DataFrame({"A": v, "B": v, "C": v}, index=idx)  # noqa: E731
+    F = {"stage": one([1, 1, 1]), "rs_pct": pd.DataFrame({"A": [80.0] * 3, "B": [24.0] * 3, "C": [80.0] * 3}, index=idx),
+         "from_high": pd.DataFrame({"A": [0.1] * 3, "B": [0.1] * 3, "C": [0.5] * 3}, index=idx),
+         "ema200_untouched": one([True] * 3), "liquid": one([True] * 3), "sector_top": one([True] * 3),
+         "ep": one([True] * 3), "close": one([10.0] * 3), "sma150": one([9.0] * 3)}
+    m = mid_entry_mask(F).iloc[-1]
+    assert bool(m["A"]) and not bool(m["B"]) and not bool(m["C"])
+
+
+def test_expected_last_day():
+    from engine.pipeline import expected_last_day
+    ny = "America/New_York"
+    assert str(expected_last_day(pd.Timestamp("2026-11-07 15:00", tz=ny)).date()) == "2026-11-06"   # shanba → juma
+    assert str(expected_last_day(pd.Timestamp("2026-11-09 10:00", tz=ny)).date()) == "2026-11-06"   # dushanba ertalab → juma
+    assert str(expected_last_day(pd.Timestamp("2026-11-10 00:30", tz=ny)).date()) == "2026-11-09"   # seshanba tunda → dushanba

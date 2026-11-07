@@ -17,7 +17,7 @@ import pandas as pd
 from . import config as C
 from . import portfolio as PF
 from .data import read_json, write_json
-from .features import build, earnings_soon, mid_entry_mask, mid_exit_reason
+from .features import build, earnings_soon, mid_base_mask, mid_entry_mask, mid_exit_reason
 from .fundamentals import sector_percentiles
 from .market import panel, regime_series
 from .scoring import STRATEGY_INFO, layers, screen, total
@@ -114,10 +114,33 @@ def _chart(d: pd.DataFrame) -> dict:
             "ema20": r(x["ema20"]), "ema50": r(x["ema50"]), "sma150": r(x["sma150"]), "sma200": r(x["sma200"])}
 
 
+def expected_last_day(now: pd.Timestamp | None = None) -> pd.Timestamp:
+    """Hozir mavjud bo'lishi kerak bo'lgan oxirgi yopilgan savdo kuni (bayramlarsiz, faqat ish kunlari)."""
+    now = now if now is not None else pd.Timestamp.now(tz=C.TZ)
+    d = now.tz_localize(None).normalize()
+    if now.hour * 60 + now.minute < 16 * 60 + 15:
+        d -= pd.Timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= pd.Timedelta(days=1)
+    return d
+
+
+def _check_freshness(prices: dict) -> None:
+    q = prices.get(C.REGIME["index"])
+    if q is None or q.empty:
+        return
+    exp, last = expected_last_day(), q.index[-1]
+    if last < exp:
+        print(f"[ogohlantirish] {C.REGIME['index']} oxirgi sham {last.date()}, kutilgan {exp.date()}. "
+              "Yahoo hali e'lon qilmagan yoki bayram kuni — keyingi ishda to'g'rilanadi.")
+
+
 def run(demo: bool = False, publish_dir=C.PUBLIC, warmup_days: int | None = None) -> dict:
     if demo:   # demo holati haqiqiy state/ papkasini ifloslamasligi uchun alohida joyda
         C.STATE = C.ROOT / ".demo-state"
     tickers, prices, fund, earn, divs, src = load(demo)
+    if not demo:
+        _check_freshness(prices)
     sectors = {t: (fund.get(t) or {}).get("sector", "") for t in tickers}
     F = build(prices, tickers, sectors)
     idx = F["index"]
@@ -147,6 +170,7 @@ def run(demo: bool = False, publish_dir=C.PUBLIC, warmup_days: int | None = None
     hist_path = C.STATE / "watch_history.jsonl"
     new_hist: list[dict] = []
     mask = mid_entry_mask(F)
+    base_mask = mid_base_mask(F)
     last_done = W.get("last_date")
     warm = (250 if demo else 0) if warmup_days is None else warmup_days
     start_i = today_i - warm if last_done is None else max(today_i - 30, int(np.searchsorted(idx.values, np.datetime64(last_done), side="right")))
@@ -167,10 +191,12 @@ def run(demo: bool = False, publish_dir=C.PUBLIC, warmup_days: int | None = None
         for t in universe:
             if t not in W["mid"] and bool(mask[t].iat[i]):
                 ep = bool(F["ep"][t].iat[i])
-                rs = F["rs_pct"][t].iat[i]
+                rs, fh = F["rs_pct"][t].iat[i], F["from_high"][t].iat[i]
+                main_rule = bool(base_mask[t].iat[i])
                 W["mid"][t] = {"entered": ds, "price": _f(F["close"][t].iat[i]),
-                               "reason": "EP: katta hajmli gap (katalizator)" if ep and F["stage"][t].iat[i] != 2 else
-                               f"Bosqich 2, nisbiy kuch {rs:.0f}, cho'qqidan {F['from_high'][t].iat[i] * 100:.0f}% pastda, sektor kuchli"}
+                               "reason": f"Bosqich 2, nisbiy kuch {rs:.0f}, cho'qqidan {fh * 100:.0f}% pastda, sektor kuchli"
+                               + (" + katalizator (EP)" if ep else "") if main_rule else
+                               f"Katalizator (EP): katta hajmli gap, nisbiy kuch {rs:.0f}, cho'qqidan {fh * 100:.0f}% pastda"}
         cands = []
         for s in sig_by_day.get(i, []):
             t = s["ticker"]
