@@ -105,6 +105,15 @@ def download_daily(tickers: list[str], years: int = C.DAILY_YEARS, batch: int = 
     return out
 
 
+def _report_tail(tail: dict[str, pd.DataFrame]) -> None:
+    """Jurnalga: yuklangan oxirgi sham sanalari (ma'lumot kechikishini ko'rish uchun)."""
+    now = pd.Timestamp.now(tz=C.TZ)
+    last = pd.Series({t: df.index[-1].date().isoformat() for t, df in tail.items() if len(df)})
+    probe = {t: [d.date().isoformat() for d in tail[t].index[-3:]] for t in ("QQQ", "SPY", "AAPL") if t in tail}
+    print(f"[narx] Nyu-York vaqti {now:%Y-%m-%d %H:%M}; {len(tail)} ta aksiya yangilandi; "
+          f"oxirgi sanalar: {last.value_counts().to_dict()}; namuna: {probe}")
+
+
 def drop_unfinished(df: pd.DataFrame, now: pd.Timestamp | None = None) -> pd.DataFrame:
     """Bozor hali yopilmagan bo'lsa (Nyu-York vaqti 16:15 dan oldin), bugungi chala shamni olib tashlaydi.
     Skaner qo'lda kun o'rtasida ishga tushirilsa ham faqat yopilgan kunlar tahlil qilinadi."""
@@ -132,6 +141,7 @@ def load_cached_prices(tickers: list[str], years: int = C.DAILY_YEARS) -> dict[s
     got = download_daily(fresh_full, years) if fresh_full else {}
     if fresh_tail:
         tail = download_daily(fresh_tail, period="1mo")
+        _report_tail(tail)
         for t, df in tail.items():
             # split bo'lsa eski tarix moslashtirilmagan bo'ladi → to'liq qayta yuklaymiz
             old = have[t]
